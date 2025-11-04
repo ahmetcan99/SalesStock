@@ -4,6 +4,6 @@ namespace SalesStock.Infrastructure.Identity
 {
     public class ApplicationUser : IdentityUser
     {
-        public bool isActive { get; set; } = true;
+        public bool IsActive { get; set; } = true;
     }
 }

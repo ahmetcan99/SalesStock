@@ -12,7 +12,7 @@ using SalesStock.Infrastructure.Persistence;
 namespace SalesStock.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251102103015_InitialCreate")]
+    [Migration("20251104113636_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -503,6 +503,9 @@ namespace SalesStock.Infrastructure.Persistence.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
 
@@ -535,9 +538,6 @@ namespace SalesStock.Infrastructure.Persistence.Migrations
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
-
-                    b.Property<bool>("isActive")
-                        .HasColumnType("bit");
 
                     b.HasKey("Id");
 

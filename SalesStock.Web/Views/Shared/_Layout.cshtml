@@ -4,47 +4,96 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - SalesStock.Web</title>
-    <script type="importmap"></script>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/SalesStock.Web.styles.css" asp-append-version="true" />
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">SalesStock.Web</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
+<body class="bg-gray-100 text-gray-800 flex flex-col min-h-screen">
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - SalesStock.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <!-- NAVBAR -->
+    <header class="bg-white shadow">
+        <nav class="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
+            <a asp-area="" asp-controller="Home" asp-action="Index" class="text-xl font-semibold text-blue-600">
+                SalesStock.Web
+            </a>
+            <div class="space-x-6 hidden md:flex items-center">
+                <a asp-area="" asp-controller="Home" asp-action="Index" class="hover:text-blue-600 transition">Home</a>
+                <a asp-area="" asp-controller="Home" asp-action="Privacy" class="hover:text-blue-600 transition">Privacy</a>
+
+                @* UserManagement button for admin role *@
+                @if (User.IsInRole("Admin"))
+                {
+                    <a asp-area="" asp-controller="UserManagement" asp-action="Index" class="hover:text-blue-600 transition">User Management</a>
+                }
+
+                @if (User.Identity != null && User.Identity.IsAuthenticated)
+                {
+                    <form asp-controller="Account" asp-action="Logout" method="post" class="inline">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="hover:text-blue-600 transition">Logout</button>
+                    </form>
+                }
+                else
+                {
+                    <a asp-area="" asp-controller="Account" asp-action="Login" class="hover:text-blue-600 transition">Login</a>
+                }
+            </div>
+
+            <!-- Mobile Menu Button -->
+            <button id="menu-toggle" class="md:hidden focus:outline-none">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+        </nav>
+
+        <!-- Mobile Dropdown -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white shadow">
+            <div class="flex flex-col px-6 py-3 space-y-2">
+                <a asp-area="" asp-controller="Home" asp-action="Index" class="hover:text-blue-600 transition">Home</a>
+                <a asp-area="" asp-controller="Home" asp-action="Privacy" class="hover:text-blue-600 transition">Privacy</a>
+
+                @* UserManagement button for admin role (Mobil) *@
+                @if (User.IsInRole("Admin"))
+                {
+                    <a asp-area="" asp-controller="UserManagement" asp-action="Index" class="hover:text-blue-600 transition">Kullanıcı Yönetimi</a>
+                }
+
+                @if (User.Identity != null && User.Identity.IsAuthenticated)
+                {
+                    <form asp-controller="Account" asp-action="Logout" method="post">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="hover:text-blue-600 transition w-full text-left">Logout</button>
+                    </form>
+                }
+                else
+                {
+                    <a asp-area="" asp-controller="Account" asp-action="Login" class="hover:text-blue-600 transition">Login</a>
+                }
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-grow max-w-7xl mx-auto p-6 w-full">
+        @RenderBody()
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white border-t">
+        <div class="w-full mx-auto max-w-7xl px-8 py-4 text-sm text-gray-500 flex justify-between items-center">
+            <span>&copy; 2025 - SalesStock.Web</span>
+            <a asp-area="" asp-controller="Home" asp-action="Privacy" class="hover:text-blue-600">Privacy</a>
         </div>
     </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script>
+        const menuToggle = document.getElementById("menu-toggle");
+        const mobileMenu = document.getElementById("mobile-menu");
+        menuToggle.addEventListener("click", () => {
+            mobileMenu.classList.toggle("hidden");
+        });
+    </script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
