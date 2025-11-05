@@ -13,7 +13,11 @@ builder.Host.UseSerilog((ctx, lc) => lc.ReadFrom.Configuration(ctx.Configuration
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>( o => { o.SignIn.RequireConfirmedAccount = false; })
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>( o => 
+{ 
+    o.User.RequireUniqueEmail = true;
+    o.SignIn.RequireConfirmedAccount = false;
+})
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders()
     .AddDefaultUI();

@@ -1,0 +1,66 @@
+﻿@model SalesStock.Web.ViewModels.UserManagement.EditUserViewModel
+
+@{
+    ViewData["Title"] = "Edit User";
+    var isDisabled = Model.IsEditingSelf ? "disabled" : null;
+    var statusOptions = new List<SelectListItem>
+    {
+        new SelectListItem { Value = "Active", Text = "Active" },
+        new SelectListItem { Value = "Passive", Text = "Passive" }
+    };
+}
+
+<div class="flex items-center justify-center py-12">
+    <div class="card w-full max-w-lg">
+        @if (Model.IsEditingSelf)
+        {
+            <div class="alert-info mb-6">
+                <p class="font-semibold">You are editing your own profile.</p>
+                <p class="text-sm">For security purposes, you cannot change your own role, password, or account status.</p>
+            </div>
+        }
+
+        <h1 class="card-header">@ViewData["Title"] <span class="text-blue-600">@Model.UserName</span></h1>
+
+        <form asp-action="Edit" class="space-y-3">
+            <div asp-validation-summary="ModelOnly" class="alert-error" role="alert"></div>
+            <input type="hidden" asp-for="Id" />
+            <div>
+                <label asp-for="UserName" class="form-label"></label>
+                <input asp-for="UserName" class="form-input" />
+                <span asp-validation-for="UserName" class="form-error"></span>
+            </div>
+
+            <div>
+                <label asp-for="Email" class="form-label"></label>
+                <input asp-for="Email" class="form-input" />
+                <span asp-validation-for="Email" class="form-error"></span>
+            </div>
+
+            <div>
+                <label asp-for="Status" class="form-label"></label>
+                <select asp-for="Status" asp-items="@statusOptions" disabled="@isDisabled" class="form-input"></select>
+                <span asp-validation-for="Status" class="form-error"></span>
+            </div>
+
+            <div>
+                <label asp-for="SelectedRole" class="form-label"></label>
+                <select asp-for="SelectedRole" asp-items="@Model.RoleList" disabled="@isDisabled" class="form-input">
+                    <option value="">-- Choose a Role --</option>
+                </select>
+                <span asp-validation-for="SelectedRole" class="form-error"></span>
+            </div>
+
+            <div class="flex justify-end space-x-3 pt-6">
+                @if (!Model.IsEditingSelf)
+                {
+                    <a asp-action="ResetPassword" asp-route-id="@Model.Id" class="btn btn-danger mr-auto">
+                        Reset Password
+                    </a>
+                }
+                <a asp-action="Index" class="btn btn-neutral">Return to List</a>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
