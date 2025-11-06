@@ -46,9 +46,9 @@ namespace SalesStock.Infrastructure.Persistence
 
             builder.Entity<PriceListItem>().HasIndex(x => new { x.PriceListId, x.ProductId, x.ValidFrom, x.ValidTo });
 
-            builder.Entity<Customer>().Property(x => x.isActive).HasDefaultValue(true);
-            builder.Entity<Product>().Property(x => x.isActive).HasDefaultValue(true);
-            builder.Entity<PriceList>().Property(x => x.isActive).HasDefaultValue(true);
+            builder.Entity<Customer>().Property(x => x.IsActive).HasDefaultValue(true);
+            builder.Entity<Product>().Property(x => x.IsActive).HasDefaultValue(true);
+            builder.Entity<PriceList>().Property(x => x.IsActive).HasDefaultValue(true);
         }
 
     }

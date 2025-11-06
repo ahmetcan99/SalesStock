@@ -1,0 +1,63 @@
+﻿@model SalesStock.Domain.Entities.Customer
+
+@{
+    ViewData["Title"] = "Edit Customer";
+
+    // Status dropdown seçeneklerini oluştur
+    var statusOptions = new List<SelectListItem>
+    {
+        new SelectListItem { Value = "true", Text = "Active" },
+        new SelectListItem { Value = "false", Text = "Passive" }
+    };
+}
+
+<div class="card max-w-3xl mx-auto">
+    <h1 class="card-header">@ViewData["Title"]: <span class="text-blue-600">@Model.Code</span></h1>
+
+    <form asp-action="Edit">
+        <div asp-validation-summary="ModelOnly" class="alert-error mb-6"></div>
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="CreatedAt" />
+
+        <div class="mb-4">
+            <label asp-for="Code" class="form-label">Customer Code</label>
+            <input asp-for="Code" class="form-input" />
+            <span asp-validation-for="Code" class="form-error"></span>
+        </div>
+
+        <div class="mb-4">
+            <label asp-for="Name" class="form-label">Customer Name</label>
+            <input asp-for="Name" class="form-input" />
+            <span asp-validation-for="Name" class="form-error"></span>
+        </div>
+
+        <div class="mb-4">
+            <label asp-for="Email" class="form-label"></label>
+            <input asp-for="Email" class="form-input" />
+            <span asp-validation-for="Email" class="form-error"></span>
+        </div>
+
+        <div class="mb-4">
+            <label asp-for="Phone" class="form-label"></label>
+            <input asp-for="Phone" class="form-input" />
+            <span asp-validation-for="Phone" class="form-error"></span>
+        </div>
+
+        <div class="mb-6">
+            <label asp-for="IsActive" class="form-label">Status</label>
+            <select asp-for="IsActive" class="form-input" asp-items="statusOptions"></select>
+            <span asp-validation-for="IsActive" class="form-error"></span>
+        </div>
+
+        <div class="flex justify-end gap-3 mt-8">
+            <a asp-action="Index" class="btn btn-neutral">Back to List</a>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
