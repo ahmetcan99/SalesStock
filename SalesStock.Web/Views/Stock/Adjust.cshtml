@@ -1,0 +1,69 @@
+﻿@model SalesStock.Web.ViewModels.Stock.StockAdjustViewModel
+
+@{
+    ViewData["Title"] = "Stock Adjustment";
+}
+
+<div class="card max-w-3xl mx-auto">
+    <h1 class="card-header">@ViewData["Title"]</h1>
+    <p class="text-gray-600 text-center -mt-4 mb-6">Manually adjust the stock level for a product.</p>
+
+    <form asp-action="Adjust" method="post">
+        <div asp-validation-summary="ModelOnly" class="alert-error mb-6"></div>
+
+        <div class="mb-4">
+            <label asp-for="SKU" class="form-label">Product (SKU)</label>
+            <select asp-for="SKU" id="select-product-SKU" placeholder="Search or select a product..."></select>
+            <span asp-validation-for="SKU" class="form-error"></span>
+        </div>
+
+        <div class="mb-4">
+            <label asp-for="Quantity" class="form-label"></label>
+            <input asp-for="Quantity" type="number" step="1" class="form-input" placeholder="e.g., 10 for increase, -5 for decrease" />
+            <span asp-validation-for="Quantity" class="form-error"></span>
+        </div>
+
+        <div class="mb-6">
+            <label asp-for="Reason" class="form-label"></label>
+            <input asp-for="Reason" class="form-input" placeholder="e.g., Initial stock count, Damaged goods, etc." />
+            <span asp-validation-for="Reason" class="form-error"></span>
+        </div>
+
+        <div class="flex justify-end gap-3 mt-8">
+            <a asp-action="Index" class="btn btn-neutral">Back to List</a>
+            <button type="submit" class="btn btn-primary">Perform Adjustment</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+        fetch('/PriceLists/SearchAvailableProducts')
+            .then(r => r.json())
+            .then(initialOptions => {
+                new TomSelect('#select-product-SKU', {
+                    options: initialOptions,
+                    valueField: 'value',
+                    labelField: 'text',
+                    searchField: ['text'],
+                    openOnFocus: true,
+                    preload: 'focus',
+                    shouldLoad: function () { return true; },
+                    load: function (query, callback) {
+                        const url = '/PriceLists/SearchAvailableProducts?term=' + encodeURIComponent(query || '');
+                        fetch(url)
+                            .then(res => res.json())
+                            .then(data => callback(data))
+                            .catch(() => callback());
+                    },
+                    render: {
+                        loading: function () { return '<div class="p-2">Loading…</div>'; },
+                        option: function (item, escape) { return `<div>${escape(item.text)}</div>`; },
+                        no_results: function () { return '<div class="p-2">No products found.</div>'; }
+                    }
+                });
+            });
+        });
+    </script>
+}

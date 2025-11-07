@@ -7,7 +7,7 @@ namespace SalesStock.Domain.Entities
     {
         public int ProductId { get; set; }
         public Product Product { get; set; } = null!;
-        public decimal Quantity { get; set; }
+        public int Quantity { get; set; }
         public StockMovementType MovementType { get; set; }
         public string? ReferenceNo { get; set; }
     }

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SalesStock.Infrastructure.Persistence;
 using SalesStock.Domain.Entities;
+using SalesStock.Web.Common;
 
 namespace SalesStock.Web.Controllers
 {
@@ -16,7 +17,7 @@ namespace SalesStock.Web.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index(string sortOrder,string currentFilter,string searchTerm,int? pageNumber)
+        public async Task<IActionResult> Index(string sortOrder, string currentFilter, string searchTerm, string statusFilter, int? pageNumber)
         {
             ViewData["CurrentSort"] = sortOrder;
             ViewData["NameSortParam"] = string.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
@@ -24,7 +25,7 @@ namespace SalesStock.Web.Controllers
             ViewData["EmailSortParam"] = sortOrder == "Email" ? "email_desc" : "Email";
             ViewData["StatusSortParam"] = sortOrder == "Status" ? "status_desc" : "Status";
 
-            if (searchTerm != null)
+            if (searchTerm != null || statusFilter != null)
             {
                 pageNumber = 1;
             }
@@ -34,14 +35,26 @@ namespace SalesStock.Web.Controllers
             }
 
             ViewData["CurrentFilter"] = searchTerm;
+            ViewData["CurrentStatusFilter"] = statusFilter;
 
-            var query = _context.Customers.AsQueryable();
+            var query = _context.Customers.AsNoTracking();
 
             if (!string.IsNullOrEmpty(searchTerm))
             {
                 query = query.Where(c => c.Code.Contains(searchTerm)
                                        || c.Name.Contains(searchTerm)
                                        || (c.Email != null && c.Email.Contains(searchTerm)));
+            }
+            if (!string.IsNullOrEmpty(statusFilter))
+            {
+                if (statusFilter.Equals("active", StringComparison.OrdinalIgnoreCase))
+                {
+                    query = query.Where(p => p.IsActive);
+                }
+                else if (statusFilter.Equals("passive", StringComparison.OrdinalIgnoreCase))
+                {
+                    query = query.Where(p => !p.IsActive);
+                }
             }
 
             switch (sortOrder)
@@ -75,14 +88,9 @@ namespace SalesStock.Web.Controllers
             int pageSize = 10;
             int currentPage = pageNumber ?? 1;
 
-            int totalRecords = await query.CountAsync();
+            var pagedList = await PaginatedList<Customer>.CreateAsync(query, currentPage, pageSize);
 
-            var customers = await query.Skip((currentPage - 1) * pageSize).Take(pageSize).ToListAsync();
-
-            ViewData["TotalPages"] = (int)Math.Ceiling(totalRecords / (double)pageSize);
-            ViewData["CurrentPage"] = currentPage;
-
-            return View(customers);
+            return View(pagedList);
         }
 
         public IActionResult Create()
@@ -159,6 +167,28 @@ namespace SalesStock.Web.Controllers
                 return RedirectToAction(nameof(Index));
             }
             return View(customer);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin,Manager")]
+        public async Task<IActionResult> ToggleStatus(int id)
+        {
+            var customer = await _context.Customers.FindAsync(id);
+            if (customer == null)
+            {
+                TempData["ErrorMessage"] = "Customer not found.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            customer.IsActive = !customer.IsActive;
+            _context.Update(customer);
+            await _context.SaveChangesAsync();
+
+            var status = customer.IsActive ? "activated" : "deactivated";
+            TempData["SuccessMessage"] = $"Customer '{customer.Name}' has been {status}.";
+
+            return RedirectToAction(nameof(Index));
         }
     }
 }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SalesStock.Infrastructure.Persistence;
 
@@ -11,9 +12,11 @@ using SalesStock.Infrastructure.Persistence;
 namespace SalesStock.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251107152929_Renamed_isDefault_to_IsDefault")]
+    partial class Renamed_isDefault_to_IsDefault
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -413,13 +416,13 @@ namespace SalesStock.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("StockOnHand")
+                    b.Property<decimal>("StockOnHand")
                         .HasPrecision(18, 3)
-                        .HasColumnType("int");
+                        .HasColumnType("decimal(18,3)");
 
-                    b.Property<int>("StockReserved")
+                    b.Property<decimal>("StockReserved")
                         .HasPrecision(18, 3)
-                        .HasColumnType("int");
+                        .HasColumnType("decimal(18,3)");
 
                     b.Property<string>("Unit")
                         .IsRequired()
@@ -464,9 +467,9 @@ namespace SalesStock.Infrastructure.Persistence.Migrations
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Quantity")
+                    b.Property<decimal>("Quantity")
                         .HasPrecision(18, 3)
-                        .HasColumnType("int");
+                        .HasColumnType("decimal(18,3)");
 
                     b.Property<string>("ReferenceNo")
                         .HasColumnType("nvarchar(max)");

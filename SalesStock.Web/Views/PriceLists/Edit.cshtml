@@ -1,0 +1,53 @@
+﻿@model SalesStock.Domain.Entities.PriceList
+
+@{
+    ViewData["Title"] = "Edit Price List";
+
+    var currencyOptions = new List<SelectListItem>
+    {
+        new SelectListItem { Value = "TRY", Text = "TRY (Turkish Lira)" },
+        new SelectListItem { Value = "USD", Text = "USD (US Dollar)" },
+        new SelectListItem { Value = "EUR", Text = "EUR (Euro)" }
+    };
+}
+
+<div class="card max-w-3xl mx-auto">
+    <h1 class="card-header">@ViewData["Title"]: <span class="text-blue-600">@Model.Name</span></h1>
+
+    <form asp-action="Edit">
+        <div asp-validation-summary="ModelOnly" class="alert-error mb-6"></div>
+
+        <input type="hidden" asp-for="Id" />
+
+        <div class="mb-4">
+            <label asp-for="Name" class="form-label">Price List Name</label>
+            <input asp-for="Name" class="form-input" />
+            <span asp-validation-for="Name" class="form-error"></span>
+        </div>
+
+        <div class="mb-4">
+            <label asp-for="Currency" class="form-label"></label>
+            <select asp-for="Currency" class="form-input" asp-items="currencyOptions">
+                <option value="">Select a currency...</option>
+            </select>
+            <span asp-validation-for="Currency" class="form-error"></span>
+        </div>
+
+        <div class="mb-6">
+            <div class="relative flex items-start">
+                <div class="flex items-center h-5">
+                    <input asp-for="IsDefault" type="checkbox" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+                </div>
+                <div class="ml-3 text-sm">
+                    <label asp-for="IsDefault" class="form-label !mb-0">Set as default price list</label>
+                    <p class="text-gray-500">If checked, any other default price list will be unset.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex justify-end gap-3 mt-8">
+            <a asp-action="Index" class="btn btn-neutral">Back to List</a>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+    </form>
+</div>

@@ -6,6 +6,7 @@
     <title>@ViewData["Title"] - SalesStock.Web</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="~/css/site.css" />
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.default.css" rel="stylesheet">
 </head>
 <body class="bg-gradient-to-br from-gray-100 to-gray-200 text-gray-800 flex flex-col min-h-screen">
 
@@ -19,14 +20,26 @@
             <div class="space-x-6 hidden md:flex items-center text-sm font-medium">
                 <a asp-controller="Home" asp-action="Index" class="nav-link text-dark">Home</a>
                 <a asp-controller="Home" asp-action="Privacy" class="nav-link text-dark">Privacy</a>
-
-                @if (User.IsInRole("Admin"))
+                @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
                 {
-                    <a asp-controller="UserManagement" asp-action="Index" class="nav-link text-dark">User Management</a>
+                    <a asp-controller="Stock" asp-action="Index" class="nav-link text-dark">Stock Operations</a>
+                }
+                @if (User.IsInRole("Admin") || User.IsInRole("Manager") || User.IsInRole("Operator"))
+                {
+                    <a asp-controller="Products" asp-action="Index" class="nav-link text-dark">Products</a>
                 }
                 @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
                 {
+                    <a asp-controller="PriceLists" asp-action="Index" class="nav-link text-dark">Price Lists</a>
+                }
+
+                @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
+                {
                     <a asp-controller="Customers" asp-action="Index" class="nav-link text-dark">Customers</a>
+                }
+                @if (User.IsInRole("Admin"))
+                {
+                    <a asp-controller="UserManagement" asp-action="Index" class="nav-link text-dark">User Management</a>
                 }
                 @if (User.Identity?.IsAuthenticated == true)
                 {
@@ -100,6 +113,7 @@
             mobileMenu.classList.toggle("hidden");
         });
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

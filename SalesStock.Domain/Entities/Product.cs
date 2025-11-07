@@ -10,7 +10,7 @@ namespace SalesStock.Domain.Entities
         public decimal VatRate { get; set; }
         public decimal UnitPrice { get; set; }
         public string BarCode { get; set; } = null!;
-        public decimal StockOnHand { get; set; }
-        public decimal StockReserved { get; set; }
+        public int StockOnHand { get; set; }
+        public int StockReserved { get; set; }
     }
 }

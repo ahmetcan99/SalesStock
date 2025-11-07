@@ -246,5 +246,44 @@ namespace SalesStock.Web.Controllers
             return View(model);
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ToggleStatus(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                return NotFound();
+            }
+            var loggedInUserId = _userManager.GetUserId(User);
+            if (id == loggedInUserId)
+            {
+                TempData["ErrorMessage"] = "You cannot change your own account status.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+            {
+                TempData["ErrorMessage"] = "User not found.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            user.IsActive = !user.IsActive;
+
+            var result = await _userManager.UpdateAsync(user);
+
+            if (result.Succeeded)
+            {
+                var status = user.IsActive ? "activated" : "deactivated";
+                TempData["SuccessMessage"] = $"User '{user.UserName}' has been {status}.";
+            }
+            else
+            {
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                TempData["ErrorMessage"] = $"Failed to update user status: {errors}";
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
     }
 }

@@ -1,0 +1,92 @@
+﻿@model SalesStock.Domain.Entities.Product
+
+@{
+    ViewData["Title"] = "Edit Product";
+
+    var statusOptions = new List<SelectListItem>
+    {
+        new SelectListItem { Value = "true", Text = "Active" },
+        new SelectListItem { Value = "false", Text = "Passive" }
+    };
+
+    var isStatusDisabled = User.IsInRole("Operator") ? "disabled" : null;
+}
+
+<div class="card max-w-4xl mx-auto">
+    <h1 class="card-header">@ViewData["Title"]: <span class="text-blue-600">@Model.Name</span></h1>
+
+    <form asp-action="Edit">
+        <div asp-validation-summary="ModelOnly" class="alert-error mb-6"></div>
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="StockOnHand" />
+        <input type="hidden" asp-for="StockReserved" />
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+            <div>
+                <div class="mb-4">
+                    <label asp-for="SKU" class="form-label">SKU</label>
+                    <input asp-for="SKU" class="form-input" />
+                    <span asp-validation-for="SKU" class="form-error"></span>
+                </div>
+                <div class="mb-4">
+                    <label asp-for="Name" class="form-label">Product Name</label>
+                    <input asp-for="Name" class="form-input" />
+                    <span asp-validation-for="Name" class="form-error"></span>
+                </div>
+                <div class="mb-4">
+                    <label asp-for="BarCode" class="form-label"></label>
+                    <input asp-for="BarCode" class="form-input" />
+                    <span asp-validation-for="BarCode" class="form-error"></span>
+                </div>
+                <div class="mb-4">
+                    <label asp-for="Unit" class="form-label"></label>
+                    <input asp-for="Unit" class="form-input" />
+                    <span asp-validation-for="Unit" class="form-error"></span>
+                </div>
+            </div>
+            <div>
+                <div class="grid grid-cols-2 gap-x-4">
+                    <div class="mb-4">
+                        <label asp-for="UnitPrice" class="form-label">Unit Price</label>
+                        <input asp-for="UnitPrice" class="form-input" />
+                        <span asp-validation-for="UnitPrice" class="form-error"></span>
+                    </div>
+                    <div class="mb-4">
+                        <label asp-for="VatRate" class="form-label">VAT Rate (e.g., 0.20)</label>
+                        <input asp-for="VatRate" class="form-input" />
+                        <span asp-validation-for="VatRate" class="form-error"></span>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-x-4">
+                    <div class="mb-4">
+                        <label asp-for="StockOnHand" class="form-label">Stock On Hand</label>
+                        <input asp-for="StockOnHand" class="form-input bg-gray-100" readonly />
+                    </div>
+                    <div class="mb-4">
+                        <label asp-for="StockReserved" class="form-label">Stock Reserved</label>
+                        <input asp-for="StockReserved" class="form-input bg-gray-100" readonly />
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label asp-for="IsActive" class="form-label">Status</label>
+                    <select asp-for="IsActive" class="form-input" asp-items="statusOptions" disabled="@isStatusDisabled"></select>
+                    @if (isStatusDisabled != null)
+                    {
+                        <input type="hidden" asp-for="IsActive" />
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="flex justify-end gap-3 mt-8">
+            <a asp-action="Index" class="btn btn-neutral">Back to List</a>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

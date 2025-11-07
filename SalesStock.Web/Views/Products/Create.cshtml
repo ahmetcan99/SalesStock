@@ -1,0 +1,65 @@
+﻿@model SalesStock.Domain.Entities.Product
+
+@{
+    ViewData["Title"] = "Create New Product";
+}
+
+<div class="card max-w-4xl mx-auto">
+    <h1 class="card-header">@ViewData["Title"]</h1>
+
+    <form asp-action="Create">
+        <div asp-validation-summary="ModelOnly" class="alert-error mb-6"></div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <div class="mb-4">
+                    <label asp-for="SKU" class="form-label"></label>
+                    <input asp-for="SKU" class="form-input" />
+                    <span asp-validation-for="SKU" class="form-error"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="Name" class="form-label"></label>
+                    <input asp-for="Name" class="form-input" />
+                    <span asp-validation-for="Name" class="form-error"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="BarCode" class="form-label"></label>
+                    <input asp-for="BarCode" class="form-input" />
+                    <span asp-validation-for="BarCode" class="form-error"></span>
+                </div>
+            </div>
+            <div>
+                <div class="mb-4">
+                    <label asp-for="UnitPrice" class="form-label">Unit Price</label>
+                    <input asp-for="UnitPrice" type="number" min="0.01" step="0.01" class="form-input" />
+                    <span asp-validation-for="UnitPrice" class="form-error"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="VatRate" class="form-label">VAT Rate (e.g., 0.18)</label>
+                    <input asp-for="VatRate" type="number" min="0" max="1" step="0.01" class="form-input" />
+                    <span asp-validation-for="VatRate" class="form-error"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="Unit" class="form-label"></label>
+                    <input asp-for="Unit" class="form-input" placeholder="e.g., PCS, KG, BOX" />
+                    <span asp-validation-for="Unit" class="form-error"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex justify-end gap-3 mt-8 border-t pt-6">
+            <a asp-action="Index" class="btn btn-neutral">Back to List</a>
+            <button type="submit" class="btn btn-primary">Create Product</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
