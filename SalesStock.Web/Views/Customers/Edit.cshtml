@@ -1,9 +1,9 @@
-﻿@model SalesStock.Domain.Entities.Customer
+﻿@model SalesStock.Application.Features.Customers.DTOs.UpdateCustomerDTO
+
 
 @{
     ViewData["Title"] = "Edit Customer";
 
-    // Status dropdown seçeneklerini oluştur
     var statusOptions = new List<SelectListItem>
     {
         new SelectListItem { Value = "true", Text = "Active" },

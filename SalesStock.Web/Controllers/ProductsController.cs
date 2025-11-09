@@ -1,22 +1,20 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.EntityFrameworkCore;
-using SalesStock.Infrastructure.Persistence;
-using SalesStock.Domain.Entities;
-using SalesStock.Web.Common;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using SalesStock.Application.Features.Products.DTOs;
+using SalesStock.Application.Interfaces;
 
 namespace SalesStock.Web.Controllers
 {
     [Authorize(Roles = "Admin,Manager,Operator")]
     public class ProductsController : Controller
     {
-       private readonly AppDbContext _context;
-         public ProductsController(AppDbContext context)
+        private readonly IProductService _productService;
+        public ProductsController(IProductService productService)
          {
-              _context = context;
+              _productService = productService;
         }
 
-        public async Task<IActionResult> Index(string sortOrder,string currentFilter,string searchTerm,string statusFilter,int? pageNumber)
+        public async Task<IActionResult> Index(string? sortOrder,string? currentFilter,string? searchTerm,string? statusFilter,int? pageNumber)
         {
             ViewData["CurrentSort"] = sortOrder;
             ViewData["SkuSortParam"] = string.IsNullOrEmpty(sortOrder) ? "sku_desc" : "";
@@ -34,46 +32,9 @@ namespace SalesStock.Web.Controllers
             ViewData["CurrentFilter"] = searchTerm;
             ViewData["CurrentStatusFilter"] = statusFilter;
 
-            var query = _context.Products.AsQueryable();
-
-            if (!string.IsNullOrEmpty(searchTerm))
-            {
-                query = query.Where(p => p.SKU.Contains(searchTerm)
-                                       || p.Name.Contains(searchTerm)
-                                       || (p.BarCode != null && p.BarCode.Contains(searchTerm)));
-            }
-
-            if (!string.IsNullOrEmpty(statusFilter))
-            {
-                if (statusFilter.Equals("active", StringComparison.OrdinalIgnoreCase))
-                {
-                    query = query.Where(p => p.IsActive);
-                }
-                else if (statusFilter.Equals("passive", StringComparison.OrdinalIgnoreCase))
-                {
-                    query = query.Where(p => !p.IsActive);
-                }
-            }
-
-            switch (sortOrder)
-            {
-                case "sku_desc":
-                    query = query.OrderByDescending(p => p.SKU);
-                    break;
-                case "Name":
-                    query = query.OrderBy(p => p.Name);
-                    break;
-                case "name_desc":
-                    query = query.OrderByDescending(p => p.Name);
-                    break;
-                default:
-                    query = query.OrderBy(p => p.SKU);
-                    break;
-            }
-
             int pageSize = 10;
             int currentPage = pageNumber ?? 1;
-            var pagedList = await PaginatedList<Product>.CreateAsync(query.AsNoTracking(), currentPage, pageSize);
+            var pagedList = await _productService.GetProductsPagedAsync(sortOrder ?? "name", searchTerm!, statusFilter!, currentPage, pageNumber ?? 1,pageSize);
 
             return View(pagedList);
         }
@@ -81,79 +42,71 @@ namespace SalesStock.Web.Controllers
 
         public IActionResult Create()
         {
-            var product = new Product
+            var model = new CreateProductDTO
             {
-                VatRate = 0.2m,
-                IsActive = true
+                VatRate = 0.2m
             };
-            return View(product);
+            return View(model);
+                
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("SKU,Name,Unit,VatRate,UnitPrice,BarCode,IsActive")] Product product)
+        public async Task<IActionResult> Create(CreateProductDTO ProductDTO)
         {
-            if (await _context.Products.AnyAsync(p => p.SKU == product.SKU))
+            if(!ModelState.IsValid)
             {
-                ModelState.AddModelError("Sku", "This SKU already exists.");
+                return View(ProductDTO);
             }
-            if (product.UnitPrice <= 0)
+            try
             {
-                ModelState.AddModelError("UnitPrice", "Unit Price must be greater than 0.");
-            }
-            if (product.VatRate < 0 || product.VatRate > 1)
-            {
-                ModelState.AddModelError("VatRate", "VAT Rate must be between 0 and 1 (e.g., 0.18 for 18%).");
-            }
-
-            if (ModelState.IsValid)
-            {
-                product.StockOnHand = 0;
-                product.StockReserved = 0;
-
-                _context.Add(product);
-                await _context.SaveChangesAsync();
-                TempData["SuccessMessage"] = $"Product '{product.Name}' was created successfully.";
+                await _productService.AddProductAsync(ProductDTO);
+                TempData["SuccessMessage"] = $"Product '{ProductDTO.Name}' was created successfully.";
                 return RedirectToAction(nameof(Index));
             }
-            return View(product);
+            catch (InvalidOperationException exception)
+            {
+                ModelState.AddModelError("SKU", exception.Message);
+                return View(ProductDTO);
+            }
         }
 
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int id)
         {
-            if (id == null) return NotFound();
-            var product = await _context.Products.FindAsync(id);
-            if (product == null) return NotFound();
-            return View(product);
+            var productDTO = await _productService.GetProductForUpdateAsync(id);
+            if (productDTO == null) return NotFound();
+            return View(productDTO);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Product product)
+        public async Task<IActionResult> Edit(int id, UpdateProductDTO productDTO)
         {
-            if (id != product.Id) return NotFound();
-
-            if (await _context.Products.AnyAsync(p => p.SKU == product.SKU && p.Id != product.Id))
+            if (id != productDTO.Id)
             {
-                ModelState.AddModelError("Sku", "This SKU is already used by another product.");
+                return NotFound();
             }
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                try
-                {
-                    _context.Update(product);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!_context.Products.Any(p => p.Id == id)) return NotFound();
-                    else throw;
-                }
-                TempData["SuccessMessage"] = $"Product '{product.Name}' was updated successfully.";
+                return View(productDTO);
+            }
+
+            try
+            {
+                await _productService.UpdateProductAsync(productDTO);
+                TempData["SuccessMessage"] = $"Product '{productDTO.Name}' updated succesfully.";
                 return RedirectToAction(nameof(Index));
             }
-            return View(product);
+            catch (InvalidOperationException exception)
+            {
+                ModelState.AddModelError("Sku", exception.Message);
+                return View(productDTO);
+            }
+            catch (KeyNotFoundException) 
+            {
+                return NotFound();
+            }
         }
 
         [HttpPost]
@@ -161,21 +114,16 @@ namespace SalesStock.Web.Controllers
         [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> ToggleStatus(int id)
         {
-            var product = await _context.Products.FindAsync(id);
-            if (product == null)
+            try
             {
-                TempData["ErrorMessage"] = "Product not found.";
+                await _productService.ToggleProductStatusAsync(id);
+                TempData["SuccessMessage"] = "Product status updated successfully.";
                 return RedirectToAction(nameof(Index));
             }
-
-            product.IsActive = !product.IsActive;
-            _context.Update(product);
-            await _context.SaveChangesAsync();
-
-            var status = product.IsActive ? "activated" : "deactivated";
-            TempData["SuccessMessage"] = $"Product '{product.Name}' has been {status}.";
-
-            return RedirectToAction(nameof(Index));
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
         }
     }
 }

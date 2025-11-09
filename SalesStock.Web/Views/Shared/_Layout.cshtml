@@ -20,9 +20,9 @@
             <div class="space-x-6 hidden md:flex items-center text-sm font-medium">
                 <a asp-controller="Home" asp-action="Index" class="nav-link text-dark">Home</a>
                 <a asp-controller="Home" asp-action="Privacy" class="nav-link text-dark">Privacy</a>
-                @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
+                @if (User.IsInRole("Admin") || User.IsInRole("Manager") || User.IsInRole("Operator"))
                 {
-                    <a asp-controller="Stock" asp-action="Index" class="nav-link text-dark">Stock Operations</a>
+                    <a asp-controller="Orders" asp-action="Index" class="nav-link text-dark">Orders</a>
                 }
                 @if (User.IsInRole("Admin") || User.IsInRole("Manager") || User.IsInRole("Operator"))
                 {
@@ -30,9 +30,12 @@
                 }
                 @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
                 {
+                    <a asp-controller="Stock" asp-action="Index" class="nav-link text-dark">Stock Operations</a>
+                }
+                @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
+                {
                     <a asp-controller="PriceLists" asp-action="Index" class="nav-link text-dark">Price Lists</a>
                 }
-
                 @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
                 {
                     <a asp-controller="Customers" asp-action="Index" class="nav-link text-dark">Customers</a>

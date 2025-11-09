@@ -6,7 +6,7 @@ using SalesStock.Domain.Entities;
 using SalesStock.Domain.Enums;
 using SalesStock.Infrastructure.Persistence;
 using SalesStock.Web.ViewModels.Stock;
-using SalesStock.Web.Common;
+using SalesStock.Shared.Common;
 
 
 namespace YourProjectName.Web.Controllers

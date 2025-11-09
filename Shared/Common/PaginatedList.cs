@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace SalesStock.Web.Common
+namespace SalesStock.Shared.Common
 {
     public class PaginatedList<T> : List<T>
     {
