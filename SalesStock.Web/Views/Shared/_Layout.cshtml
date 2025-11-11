@@ -36,8 +36,8 @@
                 {
                     <a asp-controller="PriceLists" asp-action="Index" class="nav-link text-dark">Price Lists</a>
                 }
-                @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
-                {
+                @if (User.IsInRole("Admin") || User.IsInRole("Manager") || User.IsInRole("Operator"))
+                    {
                     <a asp-controller="Customers" asp-action="Index" class="nav-link text-dark">Customers</a>
                 }
                 @if (User.IsInRole("Admin"))

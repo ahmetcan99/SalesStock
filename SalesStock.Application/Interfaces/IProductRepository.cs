@@ -10,5 +10,8 @@ namespace SalesStock.Application.Interfaces
         Task<Product?> GetByIdAsync(int id);
         Task UpdateAsync(Product product);
         Task<bool> SkuExistsForOtherProductAsync(int id, string sku);
+        Task<Product?> GetBySKUAsync(string SKU);
+        Task<List<Product>> SearchAvailableProductsAsync(string searchTerm);
+
     }
 }

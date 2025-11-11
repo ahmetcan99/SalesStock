@@ -1,4 +1,4 @@
-﻿@model SalesStock.Shared.Common.PaginatedList<SalesStock.Domain.Entities.StockMovement>
+﻿@model SalesStock.Shared.Common.PaginatedList<SalesStock.Application.Features.Stock.DTOs.StockMovementDTO>
 @using SalesStock.Domain.Enums
 
 @{
@@ -23,6 +23,7 @@
                     <th>Product Name</th>
                     <th>Quantity</th>
                     <th>Movement Type</th>
+                    <th>Reason</th>
                     <th>Reference No</th>
                 </tr>
             </thead>
@@ -31,8 +32,8 @@
                 {
                     <tr>
                         <td>@item.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
-                        <td>@item.Product.SKU</td>
-                        <td>@item.Product.Name</td>
+                        <td>@item.ProductSKU</td>
+                        <td>@item.ProductName</td>
                         <td>
                             @if (item.Quantity > 0)
                             {
@@ -66,6 +67,7 @@
                                 @item.MovementType.ToString()
                             </span>
                         </td>
+                        <td>@item.Reason</td>
                         <td>@item.ReferenceNo</td>
                     </tr>
                 }

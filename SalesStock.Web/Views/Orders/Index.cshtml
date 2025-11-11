@@ -1,0 +1,158 @@
+﻿@model SalesStock.Shared.Common.PaginatedList<SalesStock.Application.Features.Orders.DTOs.OrderListDTO>
+@using SalesStock.Domain.Enums
+
+@{
+    ViewData["Title"] = "Orders";
+}
+
+<div class="card max-w-7xl mx-auto">
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert-success mb-4" role="alert">
+            <span>@TempData["SuccessMessage"]</span>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert-error mb-4" role="alert">
+            <span>@TempData["ErrorMessage"]</span>
+        </div>
+    }
+
+    <div class="flex items-center mb-6 mx-4">
+        <h1 class="card-header mr-auto my-auto">@ViewData["Title"]</h1>
+        <a asp-action="Create" class="btn btn-success inline-flex items-center">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            <span>New Order</span>
+        </a>
+    </div>
+
+    <div class="mb-6 mx-4">
+        <form asp-action="Index" method="get" id="filterForm">
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+                <div class="md:col-span-2">
+                    <label class="form-label">Search by Customer</label>
+                    <input type="text" name="customerSearchTerm" value="@ViewData["CurrentCustomerSearch"]"
+                           class="form-input" placeholder="Customer name..." id="customerSearchInput" autocomplete="off" />
+                </div>
+                <div>
+                    <label class="form-label">Status</label>
+                    <select name="status" class="form-input" onchange="this.form.submit()">
+                        <option value="">All</option>
+                        @foreach (var status in Html.GetEnumSelectList<OrderStatus>())
+                        {
+                            <option value="@status.Value" selected="@(ViewData["CurrentStatus"]?.ToString() == status.Value)">@status.Text</option>
+                        }
+                    </select>
+                </div>
+                <div>
+                    <label class="form-label">Start Date</label>
+                    <input type="date" name="startDate" value="@ViewData["CurrentStartDate"]" class="form-input" onchange="this.form.submit()" />
+                </div>
+                <div>
+                    <label class="form-label">End Date</label>
+                    <input type="date" name="endDate" value="@ViewData["CurrentEndDate"]" class="form-input" onchange="this.form.submit()" />
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 mt-4">
+                <a asp-action="Index" class="btn btn-neutral">Clear Filters</a>
+            </div>
+        </form>
+    </div>
+
+
+    <div class="overflow-x-auto rounded-lg shadow-sm">
+        <table class="table-default">
+            <thead class="table-head">
+                <tr>
+                    <th>Order No</th>
+                    <th>Customer</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th class="text-right">Total</th>
+                    <th class="text-center">Operations</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="font-medium">@item.OrderNo</td>
+                        <td>@item.CustomerName</td>
+                        <td>@item.CreatedAt.ToString("dd MMM yyyy")</td>
+                        <td>
+                            <span class="badge-@item.Status.ToString().ToLower()">@item.Status</span>
+                        </td>
+                        <td class="text-right">@item.GrandTotal.ToString("N2") @item.Currency</td>
+                        <td class="text-center">
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-primary">Edit</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+@{
+    var prevDisabled = !Model.HasPreviousPage ? "pointer-events-none opacity-50" : "";
+    var nextDisabled = !Model.HasNextPage ? "pointer-events-none opacity-50" : "";
+
+    var routeValues = new Dictionary<string, string>();
+
+    var customerSearch = ViewData["CurrentCustomerSearch"]?.ToString();
+    if (!string.IsNullOrEmpty(customerSearch))
+    {
+        routeValues["customerSearchTerm"] = customerSearch;
+    }
+
+    var status = ViewData["CurrentStatus"]?.ToString();
+    if (!string.IsNullOrEmpty(status))
+    {
+        routeValues["status"] = status;
+    }
+
+    var startDate = ViewData["CurrentStartDate"]?.ToString();
+    if (!string.IsNullOrEmpty(startDate))
+    {
+        routeValues["startDate"] = startDate;
+    }
+
+    var endDate = ViewData["CurrentEndDate"]?.ToString();
+    if (!string.IsNullOrEmpty(endDate))
+    {
+        routeValues["endDate"] = endDate;
+    }
+}
+    <div class="flex items-center justify-between mt-6 mx-4">
+        <span class="text-sm text-gray-700">
+            Page @Model.PageIndex of @Model.TotalPages
+        </span>
+        <div class="inline-flex -space-x-px">
+            <a asp-action="Index" asp-all-route-data="routeValues" asp-route-pageNumber="@(Model.PageIndex - 1)" class="py-2 px-3 ... @prevDisabled">
+                Previous
+            </a>
+            <a asp-action="Index" asp-all-route-data="routeValues" asp-route-pageNumber="@(Model.PageIndex + 1)" class="py-2 px-3 ... @nextDisabled">
+                Next
+            </a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.getElementById('customerSearchInput');
+            const filterForm = document.getElementById('filterForm');
+            let debounceTimer;
+
+            searchInput.addEventListener('input', function (e) {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => {
+                    filterForm.submit();
+                }, 500);
+            });
+        });
+    </script>
+}

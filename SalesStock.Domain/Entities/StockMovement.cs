@@ -10,6 +10,7 @@ namespace SalesStock.Domain.Entities
         public int Quantity { get; set; }
         public StockMovementType MovementType { get; set; }
         public string? ReferenceNo { get; set; }
+        public string? Reason { get; set; }
     }
 
 }

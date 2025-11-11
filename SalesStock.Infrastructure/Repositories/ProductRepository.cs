@@ -40,6 +40,18 @@ namespace SalesStock.Infrastructure.Repositories
         {
             return await _context.Products.AnyAsync(p => p.SKU == sku && p.Id != id);
         }
+        public async Task<Product?> GetBySKUAsync(string SKU)
+        {
+            return await _context.Products.FirstOrDefaultAsync(p => p.SKU == SKU);
+        }
+        public async Task<List<Product>> SearchAvailableProductsAsync(string searchTerm)
+        {
+            return await _context.Products
+                .Where(p => p.IsActive &&
+                            (EF.Functions.Like(p.Name, $"%{searchTerm}%") ||
+                             EF.Functions.Like(p.SKU, $"%{searchTerm}%")))
+                .ToListAsync();
+        }
 
     }
 }

@@ -1,0 +1,182 @@
+﻿@model SalesStock.Web.ViewModels.Order.OrderEditViewModel
+@using SalesStock.Domain.Enums
+
+@{
+    ViewData["Title"] = $"Order Details - {Model.Order.OrderNo}";
+}
+
+<div class="card max-w-7xl mx-auto">
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert-success mb-4" role="alert"><span>@TempData["SuccessMessage"]</span></div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert-error mb-4" role="alert"><span>@TempData["ErrorMessage"]</span></div>
+    }
+
+    <div class="card-header flex justify-between items-center">
+        <div>
+            <h1 class="text-2xl font-bold">@ViewData["Title"]</h1>
+            <p class="text-sm text-gray-500">Created on: @Model.Order.CreatedAt.ToString("f")</p>
+        </div>
+        <a asp-action="Index" class="btn btn-neutral">Back to List</a>
+    </div>
+
+    <div class="p-6 border-b grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+        <div>
+            <span class="font-semibold text-gray-500 block">Customer</span>
+            <span class="text-lg">@Model.Order.CustomerName</span>
+        </div>
+        <div>
+            <span class="font-semibold text-gray-500 block">Price List</span>
+            <span class="text-lg">@Model.Order.PriceListName</span>
+        </div>
+        <div>
+            <span class="font-semibold text-gray-500 block">Status</span>
+            <span class="badge-@Model.Order.Status.ToString().ToLower() text-lg">@Model.Order.Status</span>
+        </div>
+    </div>
+
+    <div class="p-6 border-b flex flex-wrap gap-3">
+        @if(User.IsInRole("Admin") || User.IsInRole("Manager"))
+        {
+            @if (Model.Order.Status == OrderStatus.Draft)
+            {
+                <form asp-action="Approve" asp-route-id="@Model.Order.Id" method="post" onsubmit="return confirm('Are you sure you want to approve this order?');">
+                    <button type="submit" class="btn btn-success">Approve Order</button>
+                </form>
+            }
+            @if (Model.Order.Status == OrderStatus.Approved)
+            {
+                <form asp-action="Ship" asp-route-id="@Model.Order.Id" method="post" onsubmit="return confirm('Are you sure you want to ship this order?');">
+                    <button type="submit" class="btn btn-primary">Ship Order</button>
+                </form>
+            }
+            @if (Model.Order.Status == OrderStatus.Draft || Model.Order.Status == OrderStatus.Approved)
+            {
+                <form asp-action="Cancel" asp-route-id="@Model.Order.Id" method="post" onsubmit="return confirm('Are you sure you want to cancel this order?');">
+                    <button type="submit" class="btn btn-danger">Cancel Order</button>
+                </form>
+            }
+        }
+    </div>
+
+    <h2 class="text-xl font-bold p-6">Order Items</h2>
+    <div class="overflow-x-auto px-6">
+        <table class="table-default">
+            <thead class="table-head">
+                <tr>
+                    <th>SKU</th>
+                    <th>Product Name</th>
+                    <th class="text-right">Quantity</th>
+                    <th class="text-right">Unit Price</th>
+                    <th class="text-right">Net Total</th>
+                    <th class="text-center">Operations</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Order.Items)
+                {
+                    <tr>
+                        <td>@item.ProductSku</td>
+                        <td>@item.ProductName</td>
+                        <td class="text-right">@item.Quantity</td>
+                        <td class="text-right">@item.UnitPrice.ToString("N2")</td>
+                        <td class="text-right">@item.NetTotal.ToString("N2")</td>
+                        <td class="text-center">
+                            @if (Model.Order.Status == OrderStatus.Draft)
+                            {
+                                <form asp-action="RemoveItem" asp-route-itemId="@item.Id" method="post" onsubmit="return confirm('Are you sure you want to remove this item?');">
+                                    <button type="submit" class="btn btn-danger-outline text-sm">Remove</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Order.Items.Any())
+                {
+                    <tr>
+                        <td colspan="6" class="text-center p-6 text-gray-500">
+                            No items have been added to this order yet.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @if (Model.Order.Status == OrderStatus.Draft)
+    {
+
+        <div class="p-6 border-t mt-6">
+            <h3 class="text-lg font-semibold mb-4">Add New Item</h3>
+            <form asp-action="AddItem" method="post" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+
+                <input type="hidden" name="OrderId" value="@Model.Order.Id" />
+
+                <div class="md:col-span-2">
+                    <label class="form-label">Product</label>
+                    <select name="ProductId" id="select-product" placeholder="Search for a product..."></select>
+
+                    <span asp-validation-for="NewOrderItem.ProductSKU" class="form-error"></span>
+                </div>
+                <div>
+                    <label class="form-label">Quantity</label>
+
+                    <input name="Quantity" type="number" min="1" class="form-input" value="1" />
+                    <span asp-validation-for="NewOrderItem.Quantity" class="form-error"></span>
+                </div>
+                <div>
+                    <button type="submit" class="btn btn-primary w-full">Add Item</button>
+                </div>
+            </form>
+        </div>
+
+
+    }
+
+    <div class="p-6 mt-6 bg-gray-50 flex justify-end">
+        <div class="w-full md:w-1/3">
+            <dl class="space-y-2 text-sm">
+                <div class="flex justify-between">
+                    <dt class="text-gray-600">Net Total:</dt>
+                    <dd class="font-medium">@Model.Order.NetTotal.ToString("N2") @Model.Order.Currency</dd>
+                </div>
+                <div class="flex justify-between">
+                    <dt class="text-gray-600">VAT Total:</dt>
+                    <dd class="font-medium">@Model.Order.VatTotal.ToString("N2") @Model.Order.Currency</dd>
+                </div>
+                <div class="flex justify-between text-lg font-bold border-t pt-2 mt-2">
+                    <dt>Grand Total:</dt>
+                    <dd>@Model.Order.GrandTotal.ToString("N2") @Model.Order.Currency</dd>
+                </div>
+            </dl>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            new TomSelect('#select-product', {
+                valueField: 'value',
+                labelField: 'text',
+                searchField: ['text'],
+                openOnFocus: true,
+                preload: 'focus',
+                load: function (query, callback) {
+                    const url = '/PriceLists/SearchAvailableProducts?term=' + encodeURIComponent(query);
+                    fetch(url)
+                        .then(res => res.json())
+                        .then(data => callback(data))
+                        .catch(() => callback());
+                },
+                render: {
+                    loading: function () { return '<div class="p-2">Loading…</div>'; },
+                    option: function (item, escape) { return `<div>${escape(item.text)}</div>`; },
+                    no_results: function () { return '<div class="p-2">No products found.</div>'; }
+                }
+            });
+        });
+    </script>
+}

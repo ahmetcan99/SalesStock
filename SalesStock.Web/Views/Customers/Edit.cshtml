@@ -42,13 +42,14 @@
             <input asp-for="Phone" class="form-input" />
             <span asp-validation-for="Phone" class="form-error"></span>
         </div>
-
-        <div class="mb-6">
-            <label asp-for="IsActive" class="form-label">Status</label>
-            <select asp-for="IsActive" class="form-input" asp-items="statusOptions"></select>
-            <span asp-validation-for="IsActive" class="form-error"></span>
-        </div>
-
+        @if(User.IsInRole("Admin") || User.IsInRole("Manager"))
+        {
+            <div class="mb-6">
+                <label asp-for="IsActive" class="form-label">Status</label>
+                <select asp-for="IsActive" class="form-input" asp-items="statusOptions"></select>
+                <span asp-validation-for="IsActive" class="form-error"></span>
+            </div>
+        }
         <div class="flex justify-end gap-3 mt-8">
             <a asp-action="Index" class="btn btn-neutral">Back to List</a>
             <button type="submit" class="btn btn-primary">Save Changes</button>

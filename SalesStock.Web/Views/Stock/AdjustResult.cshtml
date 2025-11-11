@@ -1,4 +1,4 @@
-﻿@model SalesStock.Web.ViewModels.Stock.StockAdjustViewModel
+﻿@model SalesStock.Application.Features.Stock.DTOs.StockAdjustmentResultDTO
 
 @{
     ViewData["Title"] = "Adjustment Successful";
@@ -18,8 +18,8 @@
                 <dd class="text-gray-900">@Model.ProductName (@Model.SKU)</dd>
 
                 <dt class="font-medium text-gray-500">Adjustment Quantity</dt>
-                <dd class="text-gray-900 @(Model.Quantity >= 0 ? "text-green-600" : "text-red-600")">
-                    @(Model.Quantity > 0 ? "+" : "")@Model.Quantity
+                <dd class="text-gray-900 @(Model.AdjustedQuantity >= 0 ? "text-green-600" : "text-red-600")">
+                    @(Model.AdjustedQuantity > 0 ? "+" : "")@Model.AdjustedQuantity
                 </dd>
 
                 <dt class="font-medium text-gray-500">Previous Stock</dt>

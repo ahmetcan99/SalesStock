@@ -1,4 +1,4 @@
-﻿@model IEnumerable<SalesStock.Application.Features.PriceLists.DTOs.PriceListDTO>
+﻿@model SalesStock.Shared.Common.PaginatedList<SalesStock.Application.Features.PriceLists.DTOs.PriceListDTO>
 
 @{
     ViewData["Title"] = "Price Lists";
@@ -9,6 +9,18 @@
     {
         <div class="alert-success mb-4" role="alert">
             <span>@TempData["SuccessMessage"]</span>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert-error mb-4" role="alert">
+            <span>@TempData["ErrorMessage"]</span>
+        </div>
+    }
+    @if (TempData["InfoMessage"] != null)
+    {
+        <div class="alert-info mb-4" role="alert">
+            <span>@TempData["InfoMessage"]</span>
         </div>
     }
 
@@ -54,8 +66,9 @@
                             <a asp-action="ManageItems" asp-route-id="@item.Id" class="btn btn-neutral text-sm">Manage Items</a>
                             @if (!item.IsDefault)
                             {
-                                <form asp-action="SetDefault" asp-route-id="@item.Id" method="post"
+                                <form asp-action="SetAsDefault" asp-route-id="@item.Id" method="post"
                                       onsubmit="return confirm('Are you sure you want to set this as the default price list?');">
+                                    @Html.AntiForgeryToken()
                                     <button type="submit" class="btn btn-success text-sm">Set as Default</button>
                                 </form>
                             }
@@ -65,4 +78,25 @@
             </tbody>
         </table>
     </div>
+    
+    @{
+        var prevDisabled = !Model.HasPreviousPage ? "pointer-events-none opacity-50" : "";
+        var nextDisabled = !Model.HasNextPage ? "pointer-events-none opacity-50" : "";
+    }
+    <div class="flex justify-between items-center mt-4 px-4">
+        <span>Page @Model.PageIndex of @Model.TotalPages</span>
+        <div class="flex gap-2">
+            <a asp-action="Index"
+               asp-route-pageNumber="@(Model.PageIndex - 1)"
+               class="btn btn-neutral @prevDisabled">
+                Previous
+            </a>
+            <a asp-action="Index"
+               asp-route-pageNumber="@(Model.PageIndex + 1)"
+               class="btn btn-neutral @nextDisabled">
+                Next
+            </a>
+        </div>
+    </div>
+
 </div>

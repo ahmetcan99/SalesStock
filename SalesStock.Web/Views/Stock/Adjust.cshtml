@@ -1,5 +1,4 @@
-﻿@model SalesStock.Web.ViewModels.Stock.StockAdjustViewModel
-
+﻿@model SalesStock.Application.Features.Stock.DTOs.AdjustStockDTO
 @{
     ViewData["Title"] = "Stock Adjustment";
 }
@@ -12,9 +11,9 @@
         <div asp-validation-summary="ModelOnly" class="alert-error mb-6"></div>
 
         <div class="mb-4">
-            <label asp-for="SKU" class="form-label">Product (SKU)</label>
-            <select asp-for="SKU" id="select-product-SKU" placeholder="Search or select a product..."></select>
-            <span asp-validation-for="SKU" class="form-error"></span>
+            <label asp-for="ProductId" class="form-label">Product (SKU)</label>
+            <select asp-for="ProductId" id="select-product-SKU" placeholder="Search or select a product..."></select>
+            <span asp-validation-for="ProductId" class="form-error"></span>
         </div>
 
         <div class="mb-4">

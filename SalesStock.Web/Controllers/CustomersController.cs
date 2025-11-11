@@ -5,7 +5,7 @@ using SalesStock.Application.Interfaces;
 
 namespace SalesStock.Web.Controllers
 {
-    [Authorize(Roles = "Admin, Manager")]
+    [Authorize(Roles = "Admin, Manager, Operator")]
     public class CustomersController : Controller
     {
         private readonly ICustomerService _customerService;

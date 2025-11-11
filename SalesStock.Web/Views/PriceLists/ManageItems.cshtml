@@ -1,5 +1,4 @@
-﻿@model SalesStock.Web.ViewModels.PriceLists.ManagePriceListItemsViewModel
-
+﻿@model SalesStock.Application.Features.PriceLists.DTOs.ManagePriceListItemsDTO
 @{
     ViewData["Title"] = "Manage Items for " + Model.PriceListName;
 }
@@ -18,14 +17,15 @@
         <h1 class="card-header mr-auto my-auto">@ViewData["Title"]</h1>
         <a asp-action="Index" class="btn btn-neutral">Back to Price Lists</a>
     </div>
-    <div class="bg-gray-50 p-4 rounded-lg mb-6 mx-4 border">
+    <div class="card">
         <h2 class="text-lg font-semibold text-gray-800 mb-3">Add New Item</h2>
         <form asp-action="AddItem" method="post" class="grid grid-cols-1 md:grid-cols-6 gap-4 items-end">
             <input type="hidden" asp-for="NewItem.PriceListId" />
+            <input type="hidden" asp-for="PriceListId" />
 
             <div class="md:col-span-2">
-                <label asp-for="NewItem.Sku" class="form-label">Product (SKU)</label>
-                <select asp-for="NewItem.Sku" id="select-product-sku" placeholder="Search for a product..."></select>
+                <label asp-for="NewItem.ProductId" class="form-label">Product (SKU)</label>
+                <select asp-for="NewItem.ProductId" id="select-product-sku" placeholder="Search for a product..."></select>
             </div>
             <div>
                 <label asp-for="NewItem.Price" class="form-label"></label>
@@ -33,13 +33,13 @@
             </div>
             <div>
                 <label asp-for="NewItem.ValidFrom" class="form-label"></label>
-                <input asp-for="NewItem.ValidFrom" type="date" class="form-input" />
+                <input asp-for="NewItem.ValidFrom" type="date" class="input-date" />
             </div>
             <div>
                 <label asp-for="NewItem.ValidTo" class="form-label"></label>
-                <input asp-for="NewItem.ValidTo" type="date" class="form-input" />
+                <input asp-for="NewItem.ValidTo" type="date" class="input-date"/>
             </div>
-            <button type="submit" class="btn btn-primary h-10">Add Item</button>
+            <button type="submit" class="btn btn-primary">Add Item</button>
         </form>
     </div>
     <div class="overflow-x-auto rounded-lg shadow-sm">
@@ -58,7 +58,7 @@
                 @foreach (var item in Model.Items)
                 {
                     <tr>
-                        <td>@item.Sku</td>
+                        <td>@item.SKU</td>
                         <td>@item.ProductName</td>
                         <td>@item.Price.ToString("C")</td>
                         <td>@item.ValidFrom.ToString("yyyy-MM-dd")</td>

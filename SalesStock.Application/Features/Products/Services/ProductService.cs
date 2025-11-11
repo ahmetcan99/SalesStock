@@ -4,6 +4,7 @@ using SalesStock.Application.Features.Products.DTOs;
 using SalesStock.Application.Interfaces;
 using SalesStock.Shared.Common;
 using SalesStock.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace SalesStock.Application.Features.Products.Services
 {

@@ -1,104 +1,65 @@
-﻿
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using SalesStock.Domain.Entities;
-using SalesStock.Domain.Enums;
-using SalesStock.Infrastructure.Persistence;
-using SalesStock.Web.ViewModels.Stock;
-using SalesStock.Shared.Common;
+using SalesStock.Application.Interfaces;
+using SalesStock.Application.Features.Stock.DTOs;
 
-
-namespace YourProjectName.Web.Controllers
+namespace Sal.Web.Controllers
 {
     [Authorize(Roles = "Admin,Manager")]
     public class StockController : Controller
     {
-        private readonly AppDbContext _context;
+        private readonly IStockService _stockService;
 
-        public StockController(AppDbContext context)
+        public StockController(IStockService stockService)
         {
-            _context = context;
+            _stockService = stockService;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? pageNumber)
         {
-            var query = _context.StockMovements.AsNoTracking().Include(sm => sm.Product).OrderByDescending(sm => sm.CreatedAt);
-
             int pageSize = 20;
-            var pagedList = await PaginatedList<StockMovement>.CreateAsync(query, 1, pageSize);
+            int currentPage = pageNumber ?? 1;
+
+            var pagedList = await _stockService.GetStockMovementsPagedAsync(currentPage, pageSize);
+
             return View(pagedList);
         }
 
         public IActionResult Adjust()
         {
-            return View(new StockAdjustViewModel());
+            return View(new AdjustStockDTO());
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Adjust(StockAdjustViewModel model)
+        public async Task<IActionResult> Adjust(AdjustStockDTO adjustDTO)
         {
             if (!ModelState.IsValid)
             {
-                return View(model);
+                return View(adjustDTO);
             }
 
-            var product = await _context.Products.FirstOrDefaultAsync(p => p.SKU == model.SKU);
-
-            if (product == null)
+            try
             {
-                ModelState.AddModelError("Sku", "Product with this SKU not found.");
-                return View(model);
+                var resultDTO = await _stockService.AdjustStockAsync(adjustDTO);
+                TempData["SuccessMessage"] = 
+                    $"Stock adjusted successfully. New stock for SKU '{resultDTO.SKU}': {resultDTO.AdjustedQuantity}.";
+                return View("AdjustResult", resultDTO);
             }
-            int quantityAsInt = (int)model.Quantity;
-
-            if (quantityAsInt != model.Quantity)
+            catch (KeyNotFoundException ex)
             {
-                ModelState.AddModelError("Quantity", "Stock quantity must be a whole number.");
-                return View(model);
+                ModelState.AddModelError("ProductId", ex.Message);
+                return View(adjustDTO);
             }
-
-            if (product.StockOnHand + quantityAsInt < 0)
+            catch (InvalidOperationException ex)
             {
-                ModelState.AddModelError("Quantity", $"Operation failed. This adjustment would result in negative stock ({product.StockOnHand + model.Quantity}). Current stock is {product.StockOnHand}.");
-                return View(model);
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return View(adjustDTO);
             }
-
-            using (var transaction = await _context.Database.BeginTransactionAsync())
+            catch (Exception)
             {
-                try
-                {
-                    int oldStock = (int)product.StockOnHand;
-                    product.StockOnHand += model.Quantity;
-                    _context.Update(product);
-
-                    var stockMovement = new StockMovement
-                    {
-                        ProductId = product.Id,
-                        Quantity = model.Quantity,
-                        MovementType = StockMovementType.Adjust,
-                        ReferenceNo = $"ADJ-{System.DateTime.UtcNow:yyyyMMddHHmmss}"
-                    };
-                    _context.StockMovements.Add(stockMovement);
-
-                    await _context.SaveChangesAsync();
-                    await transaction.CommitAsync();
-
-                    model.ProductName = product.Name;
-                    model.OldStock = oldStock;
-                    model.NewStock = (int)product.StockOnHand;
-
-                    TempData["SuccessMessage"] = $"Stock for '{product.Name}' adjusted successfully from {oldStock} to {product.StockOnHand}.";
-
-                    return View("AdjustResult", model);
-                }
-                catch (System.Exception)
-                {
-                    await transaction.RollbackAsync();
-                    TempData["ErrorMessage"] = "An unexpected error occurred. The transaction has been rolled back.";
-                    return RedirectToAction(nameof(Adjust));
-                }
+                ModelState.AddModelError(string.Empty, "An unexpected error occurred. Please try again later.");
+                return View(adjustDTO);
             }
         }
     }

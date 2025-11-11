@@ -13,6 +13,8 @@ using SalesStock.Infrastructure.Repositories;
 using SalesStock.Application.Features.Products.Services;
 using SalesStock.Application.Features.Customers.Services;
 using SalesStock.Application.Features.PriceLists.Services;
+using SalesStock.Application.Features.Stock.Services;
+using SalesStock.Application.Features.Orders.Services;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -52,8 +54,15 @@ builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 
+builder.Services.AddScoped<IPriceListItemRepository, PriceListItemRepository>();
 builder.Services.AddScoped<IPriceListRepository, PriceListRepository>();
 builder.Services.AddScoped<IPriceListService, PriceListService>();
+
+builder.Services.AddScoped<IStockRepository, StockRepository>();
+builder.Services.AddScoped<IStockService, StockService>();
+
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IOrderService, OrderService>();
 
 builder.Services.AddControllersWithViews();
 

@@ -1,0 +1,44 @@
+﻿@model SalesStock.Application.Features.Orders.DTOs.CreateOrderDTO
+
+@{
+    ViewData["Title"] = "Create New Order";
+}
+
+<div class="card max-w-4xl mx-auto">
+    <h1 class="card-header">@ViewData["Title"]</h1>
+
+    <form asp-action="Create">
+        <div asp-validation-summary="ModelOnly" class="alert-error mb-6"></div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            <div class="mb-4">
+                <label asp-for="CustomerId" class="form-label">Customer</label>
+                <select asp-for="CustomerId" class="form-input" asp-items="@ViewBag.Customers">
+                    <option value="" selected disabled>-- Please select a customer --</option>
+                </select>
+                <span asp-validation-for="CustomerId" class="form-error"></span>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="PriceListId" class="form-label">Price List</label>
+                <select asp-for="PriceListId" class="form-input" asp-items="@ViewBag.PriceLists">
+                    <option value="" selected disabled>-- Please select a price list --</option>
+                </select>
+                <span asp-validation-for="PriceListId" class="form-error"></span>
+            </div>
+
+        </div>
+
+        <div class="flex justify-end gap-3 mt-8 border-t pt-6">
+            <a asp-action="Index" class="btn btn-neutral">Back to List</a>
+            <button type="submit" class="btn btn-primary">Create Draft & Continue</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
