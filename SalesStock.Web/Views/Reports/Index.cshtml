@@ -1,0 +1,119 @@
+﻿@model SalesStock.Web.Controllers.ReportsController.ReportViewModel
+@{
+    ViewData["Title"] = "Reports";
+
+}
+
+<div class="space-y-8">
+
+    <form method="get" class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 gap-4 items-end">
+        <div>
+            <label class="form-label">Report Date</label>
+            <input type="date" name="date" value="@Model.Date.ToString("yyyy-MM-dd")" class="form-input input-date" />
+        </div>
+        <div>
+            <label class="form-label">Low Stock Threshold</label>
+            <input type="number" name="threshold" value="@Model.Threshold" class="form-input w-full" />
+        </div>
+        <div class="sm:col-span-1 md:col-span-1 flex items-end">
+            <button type="submit" class="btn btn-primary w-full md:w-auto">Show Report</button>
+        </div>
+    </form>
+
+    <div class="card">
+        <h2 class="card-header">Daily Summary (@Model.Date.ToString("yyyy-MM-dd"))</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div class="card">
+                <div class="text-sm text-gray-500">Total Sales (All Currencies)</div>
+                <div class="text-2xl font-semibold">@Model.DailySales.TotalSales.ToString("C2")</div>
+            </div>
+            <div class="card">
+                <div class="text-sm text-gray-500">Total Orders</div>
+                <div class="text-2xl font-semibold">@Model.DailySales.OrderCount</div>
+            </div>
+            <div class="card">
+                <div class="text-sm text-gray-500">Top Customer</div>
+                <div class="text-lg font-semibold">@Model.DailySales.TopCustomer</div>
+            </div>
+        </div>
+
+        <h3 class="text-lg font-semibold mb-3">Sales by Currency</h3>
+        <table class="table-default">
+            <thead class="table-head">
+                <tr>
+                    <th>Currency</th>
+                    <th>Total Sales</th>
+                    <th>Order Count</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var c in Model.DailySales.SalesByCurrency)
+                {
+                    <tr>
+                        <td>@c.Currency</td>
+                        <td>@c.TotalSales.ToString("C2")</td>
+                        <td>@c.OrderCount</td>
+                    </tr>
+                }
+                @if (!Model.DailySales.SalesByCurrency.Any())
+                {
+                    <tr><td colspan="3" class="text-center py-3 text-gray-500">No data available</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h2 class="card-header">Top Selling Products</h2>
+        <table class="table-default">
+            <thead class="table-head">
+                <tr>
+                    <th>Product</th>
+                    <th>Quantity Sold</th>
+                    <th>Total Sales</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var p in Model.DailySales.TopProducts)
+                {
+                    <tr>
+                        <td>@p.ProductName</td>
+                        <td>@p.QuantitySold</td>
+                        <td>@p.TotalSales.ToString("C2")</td>
+                    </tr>
+                }
+                @if (!Model.DailySales.TopProducts.Any())
+                {
+                    <tr><td colspan="3" class="text-center py-3 text-gray-500">No data available</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h2 class="card-header">Low Stock Products (Threshold: @Model.Threshold)</h2>
+        <table class="table-default">
+            <thead class="table-head">
+                <tr>
+                    <th>SKU</th>
+                    <th>Product</th>
+                    <th>Stock</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.LowStock)
+                {
+                    <tr>
+                        <td>@item.SKU</td>
+                        <td>@item.ProductName</td>
+                        <td>@item.StockOnHand</td>
+                    </tr>
+                }
+                @if (!Model.LowStock.Any())
+                {
+                    <tr><td colspan="3" class="text-center py-3 text-gray-500">No low stock products</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

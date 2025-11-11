@@ -2,8 +2,8 @@
 using AutoMapper.QueryableExtensions;
 using SalesStock.Application.Features.Stock.DTOs;
 using SalesStock.Application.Interfaces;
-using SalesStock.Domain.Enums;
 using SalesStock.Domain.Entities;
+using SalesStock.Domain.Enums;
 using SalesStock.Shared.Common; 
 
 namespace SalesStock.Application.Features.Stock.Services
@@ -69,6 +69,10 @@ namespace SalesStock.Application.Features.Stock.Services
                 AdjustedQuantity = adjustStockDTO.Quantity,
                 Reason = adjustStockDTO.Reason ?? "N/A"
             };
+        }
+        public async Task ReleaseStockAsync(int productId, int quantity, int orderId)
+        {
+            await _stockRepository.ReleaseStockAsync(productId, quantity, orderId);
         }
     }
 }

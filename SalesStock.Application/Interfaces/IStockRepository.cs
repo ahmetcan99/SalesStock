@@ -6,5 +6,7 @@ namespace SalesStock.Application.Interfaces
     {
         IQueryable<StockMovement> GetStockMovementsAsQueryable();
         Task AddMovementAndUpdateProductStockAsync(StockMovement movement, Product productToUpdate);
+        Task ReleaseStockAsync(int productId, int quantity, int orderId);
+
     }
 }

@@ -7,5 +7,6 @@ namespace SalesStock.Application.Interfaces
     {
         Task<PaginatedList<StockMovementDTO>> GetStockMovementsPagedAsync(int pageNumber, int pageSize);
         Task<StockAdjustmentResultDTO> AdjustStockAsync(AdjustStockDTO adjustStockDTO);
+        Task ReleaseStockAsync(int productId, int quantity, int orderId);
     }
 }

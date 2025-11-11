@@ -35,7 +35,7 @@ namespace SalesStock.Web.Controllers
                 var result = await _signInManager.PasswordSignInAsync(user, password, false, false);
                 if (result.Succeeded)
                 {
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("Index", "Dashboard");
                 }
                 ModelState.AddModelError(string.Empty, "Invalid Password. Try again.");
                 return View();

@@ -9,6 +9,7 @@ namespace SalesStock.Application.Interfaces
         Task<int> CreateDraftOrderAsync(CreateOrderDTO createOrderDTO);
         Task<OrderDetailDTO?> GetOrderDetailsForEditAsync(int orderId);
         Task AddItemToOrderAsync(AddOrderItemDTO addOrderItemDTO);
+        Task RemoveItemAsync(int orderId, int itemId);
         Task<PaginatedList<OrderListDTO>> GetOrdersPagedAsync(
             string? customerSearchTerm,
             OrderStatus? statusFilter,

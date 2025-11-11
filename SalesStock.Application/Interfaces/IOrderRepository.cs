@@ -9,6 +9,9 @@ namespace SalesStock.Application.Interfaces
         Task<Order?> GetByIdAsync(int orderId);
         Task UpdateAsync(Order order);
         Task AddItemAsync(OrderItem orderItem);
+        Task<OrderItem?> GetOrderItemAsync(int orderId, int productId);
         Task<Order?> GetByIdWithItemsAndProductsAsync(int orderId);
+        Task SaveChangesAsync();
+        Task<bool> RemoveItemByProductAsync(int orderId, int productId);
     }
 }

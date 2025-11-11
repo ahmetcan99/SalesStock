@@ -15,6 +15,8 @@ using SalesStock.Application.Features.Customers.Services;
 using SalesStock.Application.Features.PriceLists.Services;
 using SalesStock.Application.Features.Stock.Services;
 using SalesStock.Application.Features.Orders.Services;
+using SalesStock.Application.Features.Dashboard.Services;
+using SalesStock.Application.Features.Reports.Services;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -64,6 +66,12 @@ builder.Services.AddScoped<IStockService, StockService>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 
+builder.Services.AddScoped<IDashBoardRepository, DashboardRepository>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
+
+builder.Services.AddScoped<IReportRepository, ReportRepository>();
+builder.Services.AddScoped<IReportService, ReportService>();
+
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
@@ -71,16 +79,15 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
+    var logger = services.GetRequiredService<ILogger<Program>>();
+
     try
     {
-        var context = services.GetRequiredService<AppDbContext>();
-        context.Database.Migrate();
-        await SalesStock.Infrastructure.Data.DbInitializer.SeedRolesAndAdminAsync(app);
+        await SalesStock.Infrastructure.Data.DbInitializer.InitializeAsync(app);
     }
     catch (Exception ex)
     {
-        var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An error occurred while migrating or seeding the database.");
+        logger.LogError(ex, "An error occurred while initializing the database.");
     }
 }
 
@@ -99,7 +106,7 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Dashboard}/{action=Index}/{id?}");
 
 app.MapRazorPages();
 

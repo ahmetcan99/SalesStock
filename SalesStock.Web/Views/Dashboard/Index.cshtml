@@ -1,0 +1,108 @@
+﻿@model SalesStock.Application.Features.Dashboard.DTOs.DashboardStatsDTO
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="space-y-8">
+
+    <form method="get" class="grid grid-cols-1 sm:grid-cols-4 md:grid-cols-5 gap-4 items-end">
+        <div>
+            <label class="form-label">Date Range</label>
+            <select name="Range" class="form-input">
+                <option value="Today">Today</option>
+                <option value="ThisWeek">This Week</option>
+                <option value="ThisMonth">This Month</option>
+                <option value="Custom">Custom</option>
+            </select>
+        </div>
+        <div>
+            <label class="form-label">Start Date</label>
+            <input type="date" name="Start" class="form-input input-date" />
+        </div>
+        <div>
+            <label class="form-label">End Date</label>
+            <input type="date" name="End" class="form-input input-date" />
+        </div>
+        <div>
+            <label class="form-label">Low Stock Threshold</label>
+            <input type="number" name="LowStockThreshold" value="5" class="form-input w-full" />
+        </div>
+        <div>
+            <button type="submit" class="btn btn-primary w-full">Apply</button>
+        </div>
+    </form>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="card">
+            <div class="text-sm text-gray-500">Total Sales (All Currencies)</div>
+            <div class="text-2xl font-semibold">@Model.SalesTotal.ToString("C2")</div>
+        </div>
+        <div class="card">
+            <div class="text-sm text-gray-500">Total Orders</div>
+            <div class="text-2xl font-semibold">@Model.OrdersCount</div>
+        </div>
+        <div class="card">
+            <div class="text-sm text-gray-500">Low Stock Products</div>
+            <div class="text-2xl font-semibold">@Model.LowStockCount</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2 class="card-header">Sales by Currency</h2>
+        <div class="overflow-x-auto">
+            <table class="table-default">
+                <thead class="table-head">
+                    <tr>
+                        <th>Currency</th>
+                        <th>Total Sales</th>
+                        <th>Order Count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var c in Model.SalesByCurrency)
+                    {
+                        <tr>
+                            <td>@c.Currency</td>
+                            <td>@c.TotalSales.ToString("C2")</td>
+                            <td>@c.OrderCount</td>
+                        </tr>
+                    }
+                    @if (!Model.SalesByCurrency.Any())
+                    {
+                        <tr><td colspan="3" class="text-center py-3 text-gray-500">No data available</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2 class="card-header">Last 5 Orders</h2>
+        <div class="overflow-x-auto">
+            <table class="table-default">
+                <thead class="table-head">
+                    <tr>
+                        <th>Date</th>
+                        <th>Order No</th>
+                        <th>Customer</th>
+                        <th>Status</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var o in Model.LastOrders)
+                    {
+                        <tr>
+                            <td>@o.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                            <td>@o.OrderNo</td>
+                            <td>@o.CustomerName</td>
+                            <td>@o.Status</td>
+                            <td>@o.GrandTotal.ToString("C2")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>

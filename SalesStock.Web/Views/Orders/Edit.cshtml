@@ -87,7 +87,11 @@
                         <td class="text-center">
                             @if (Model.Order.Status == OrderStatus.Draft)
                             {
-                                <form asp-action="RemoveItem" asp-route-itemId="@item.Id" method="post" onsubmit="return confirm('Are you sure you want to remove this item?');">
+                                <form asp-action="RemoveItem" 
+                                asp-route-orderId="@Model.Order.Id"
+                                asp-route-itemId="@item.ProductId" 
+                                method="post" 
+                                onsubmit="return confirm('Are you sure you want to remove this item?');">
                                     <button type="submit" class="btn btn-danger-outline text-sm">Remove</button>
                                 </form>
                             }

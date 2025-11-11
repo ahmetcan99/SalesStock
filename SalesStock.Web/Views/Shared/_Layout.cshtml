@@ -10,16 +10,15 @@
 </head>
 <body class="bg-gradient-to-br from-gray-100 to-gray-200 text-gray-800 flex flex-col min-h-screen">
 
-    <!-- NAVBAR -->
     <header class="bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-200">
         <nav class="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
-            <a asp-area="" asp-controller="Home" asp-action="Index" class="text-xl font-bold text-blue-600 tracking-tight">
+            <a asp-area="" asp-controller="Dashboard" asp-action="Index" class="text-xl font-bold text-blue-600 tracking-tight">
                 SalesStock.Web
             </a>
 
             <div class="space-x-6 hidden md:flex items-center text-sm font-medium">
-                <a asp-controller="Home" asp-action="Index" class="nav-link text-dark">Home</a>
-                <a asp-controller="Home" asp-action="Privacy" class="nav-link text-dark">Privacy</a>
+                <a asp-controller="Dashboard" asp-action="Index" class="nav-link text-dark">Dashboard</a>
+                <a asp-controller="Reports" asp-action="Index" class="nav-link text-dark">Reports</a>
                 @if (User.IsInRole("Admin") || User.IsInRole("Manager") || User.IsInRole("Operator"))
                 {
                     <a asp-controller="Orders" asp-action="Index" class="nav-link text-dark">Orders</a>
@@ -42,7 +41,7 @@
                 }
                 @if (User.IsInRole("Admin"))
                 {
-                    <a asp-controller="UserManagement" asp-action="Index" class="nav-link text-dark">User Management</a>
+                    <a asp-controller="UserManagement" asp-action="Index" class="nav-link text-dark">Users</a>
                 }
                 @if (User.Identity?.IsAuthenticated == true)
                 {
@@ -105,7 +104,6 @@
     <footer class="bg-white/90 backdrop-blur-md border-t border-gray-200 shadow-sm">
         <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center text-sm text-gray-600">
             <span>&copy; 2025 SalesStock.Web</span>
-            <a asp-controller="Home" asp-action="Privacy" class="hover:text-blue-600 transition">Privacy</a>
         </div>
     </footer>
 

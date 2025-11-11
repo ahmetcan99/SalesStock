@@ -1,11 +1,12 @@
-﻿using SalesStock.Application.Interfaces;
+﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using Microsoft.EntityFrameworkCore;
 using SalesStock.Application.Features.Orders.DTOs;
+using SalesStock.Application.Features.Stock.Services;
+using SalesStock.Application.Interfaces;
 using SalesStock.Domain.Entities;
 using SalesStock.Domain.Enums;
-using AutoMapper;
-using AutoMapper.QueryableExtensions;
 using SalesStock.Shared.Common;
-using Microsoft.EntityFrameworkCore;
 
 namespace SalesStock.Application.Features.Orders.Services
 {
@@ -135,6 +136,24 @@ namespace SalesStock.Application.Features.Orders.Services
             order.UpdatedAt = DateTime.UtcNow;
 
             await _orderRepository.UpdateAsync(order);
+        }
+        public async Task RemoveItemAsync(int orderId, int itemId)
+        {
+            var order = await _orderRepository.GetByIdAsync(orderId)
+                ?? throw new InvalidOperationException("Order not found.");
+
+            if (order.Status != OrderStatus.Draft)
+                throw new InvalidOperationException("Only draft orders can be modified.");
+
+            var item = await _orderRepository.GetOrderItemAsync(orderId, itemId);
+            if (item == null)
+                throw new InvalidOperationException("Item not found in order.");
+
+            var removed = await _orderRepository.RemoveItemByProductAsync(orderId, itemId);
+            if (!removed)
+                throw new InvalidOperationException("Item could not be removed.");
+
+            await _stockRepository.ReleaseStockAsync(item.ProductId, item.Quantity, orderId);
         }
         public async Task<OrderDetailDTO?> GetOrderDetailsForEditAsync(int orderId)
         {

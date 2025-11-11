@@ -130,7 +130,25 @@ namespace SalesStock.Web.Controllers
             }
             return RedirectToAction("Edit", new { id = orderItemDTO.OrderId });
         }
-
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RemoveItem(int orderId, int itemId)
+        {
+            try
+            {
+                await _orderService.RemoveItemAsync(orderId, itemId);
+                TempData["SuccessMessage"] = "Item removed.";
+            }
+            catch (InvalidOperationException ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+            }
+            catch (Exception)
+            {
+                TempData["ErrorMessage"] = "Remove failed.";
+            }
+            return RedirectToAction("Edit", "Orders", new { id = orderId });
+        }
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin,Manager")]
